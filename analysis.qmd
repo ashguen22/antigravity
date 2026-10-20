@@ -1,0 +1,71 @@
+---
+title: "Exploring Storms"
+author: "Ashlan Guengerich"
+execute:
+  echo: false
+---
+
+```{r}
+#| label: setup
+#| message: false
+
+library(tidyverse)
+```
+
+```{r}
+#| label: plot-storms
+
+# Filter to the three main storm types, count distinct storms per year and status, and fill missing year/status pairs with 0
+storms |>
+  filter(status %in% c("tropical depression", "tropical storm", "hurricane")) |>
+  mutate(status = fct_relevel(status, "tropical depression", "tropical storm", "hurricane")) |>
+  summarize(n_storms = n_distinct(name), .by = c(year, status)) |>
+  complete(year, status, fill = list(n_storms = 0)) |>
+  ggplot(aes(x = year, y = n_storms, fill = status)) +
+  geom_area(alpha = 0.85) +
+  scale_fill_manual(
+    values = c(
+      "tropical depression" = "lightblue",
+      "tropical storm" = "orange",
+      "hurricane" = "darkred"
+    )
+  ) +
+  labs(
+    title = "Named Atlantic Storms per Year by Storm Type",
+    subtitle = "Annual count of tropical depressions, tropical storms, and hurricanes",
+    x = "Year",
+    y = "Number of Storms",
+    fill = "Storm Type",
+    caption = "Source: NOAA Atlantic hurricane database (dplyr::storms)"
+  ) +
+  theme_minimal()
+```
+
+```{r}
+#| label: print-storms
+#| cache: true
+
+storms_recent <- storms |>
+  filter(year >= 2000) |>
+  select(year, name, status, wind, pressure)
+```
+
+```{r}
+#| label: plot-pressure-wind
+
+# Map color to storm status and use alpha = 0.3 so overlapping observations remain visible
+storms_recent |>
+  ggplot(aes(x = wind, y = pressure, color = status)) +
+  geom_point(alpha = 0.3) +
+  labs(
+    title = "Atmospheric Pressure vs. Wind Speed in Recent Atlantic Storms",
+    subtitle = "Stronger winds correspond to lower central pressure across storm statuses (2000–present)",
+    x = "Maximum Sustained Wind Speed (knots)",
+    y = "Atmospheric Pressure (millibars)",
+    color = "Storm Status",
+    caption = "Source: NOAA Atlantic hurricane database (dplyr::storms)"
+  ) +
+  theme_minimal()
+```
+
+

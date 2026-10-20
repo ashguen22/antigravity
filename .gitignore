@@ -1,0 +1,13 @@
+# Quarto generated files and cache
+/.quarto/
+*_files/
+*.html
+
+# R session and history files
+.Rproj.user/
+.Rhistory
+.RData
+.Ruserdata
+
+# OS files
+.DS_Store
